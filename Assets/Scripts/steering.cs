@@ -189,7 +189,7 @@ public class steering : MonoBehaviour
                 heading.color = temp;
             }
         }
-        if(!!finish) updateRank();
+        if(!finish) updateRank();
     }
 
     string FormatTime(float time)
