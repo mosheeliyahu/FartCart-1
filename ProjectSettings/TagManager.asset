@@ -10,6 +10,12 @@ TagManager:
   - Time
   - Lap
   - track
+  - leaderboardFill
+  - sceneLoad
+  - sceneUnload
+  - manager
+  - inputPart
+  - inputText
   layers:
   - Default
   - TransparentFX

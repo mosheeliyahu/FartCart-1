@@ -13,9 +13,19 @@ public class NetworkPlayer : Photon.MonoBehaviour {
     Text heading;
     public int score;
     public GameObject frontAxle, rearAxle;
+    //public GameObject leaderInput;
 
     void Start()
     {
+        foreach (GameObject go in GameObject.FindGameObjectsWithTag("sceneUnload"))
+        {
+            go.SetActive(false);
+        }
+
+        foreach (GameObject go in GameObject.FindGameObjectWithTag("manager").GetComponent<NetworkManager>().load)
+        {
+            go.SetActive(true);
+        }
         heading = GameObject.FindGameObjectWithTag("heading").GetComponent<Text>();
         if (photonView.isMine) {
             myCamera.SetActive(true);
