@@ -90,14 +90,14 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleIdentifier: com.fartgames.fartcart
-  bundleVersion: 1.0
+  bundleVersion: 1.1
   preloadedAssets: []
   metroEnableIndependentInputSource: 0
   metroEnableLowLatencyPresentationAPI: 0
   xboxOneDisableKinectGpuReservation: 0
   virtualRealitySupported: 0
   productGUID: 9aafe242298e1fd46b44d73dad050aaf
-  AndroidBundleVersionCode: 1
+  AndroidBundleVersionCode: 2
   AndroidMinSdkVersion: 19
   AndroidPreferredInstallLocation: 0
   aotOptions: 
@@ -160,7 +160,7 @@ PlayerSettings:
   AndroidTargetDevice: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: C:/Unity/aug3/privateKey.keystore
+  AndroidKeystoreName: C:/Unity/privateKey.keystore
   AndroidKeyaliasName: fartcart
   AndroidTVCompatibility: 0
   AndroidIsGame: 1

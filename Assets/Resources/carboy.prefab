@@ -2376,7 +2376,7 @@ MonoBehaviour:
   green: {r: 0, g: 1, b: 0.08965516, a: 1}
   blue: {r: 0.22256592, g: 0.122242644, b: 0.97794116, a: 1}
   myCamera: {fileID: 123332}
-  lerpSmothing: 15
+  lerpSmothing: 1.5
   position: {x: 0, y: 0, z: 0}
   rotation: {x: 0, y: 0, z: 0, w: 0}
   countdownTime: 5

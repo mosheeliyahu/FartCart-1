@@ -7,7 +7,7 @@ public class steering : MonoBehaviour
 {
     public bool test;
     public float turnSpeed, speed, fartReduce, blinkSpeed = 2;
-    public float waitForOther = 15;//wait for other player to finish
+    public float waitForOther = 8;//wait for other player to finish
     public int playerType;
     public AudioSource fartAudio, barpAudio, hiccupAudio;
     public Transform centerOfMass;
@@ -139,9 +139,9 @@ public class steering : MonoBehaviour
             Color temp = heading.color;
             temp.a = Mathf.Round(Mathf.PingPong(Time.time * blinkSpeed, 1.0f));
             heading.color = temp;
-            if (other == null || other.GetComponent<steering>().finish || Time.time-endTime> waitForOther)
+            if ((other == null || other.GetComponent<steering>().finish) || Time.time-endTime > waitForOther)
             {
-                if(Time.time - endTime > 3) endGame();
+                if(Time.time - endTime > 1.5) endGame();
             }
             
         }

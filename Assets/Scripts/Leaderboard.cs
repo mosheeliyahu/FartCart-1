@@ -37,7 +37,7 @@ public class Leaderboard : MonoBehaviour {
             {
                 count++;
                 t1.text += count + ".\n";
-                t2.text += currentScore.playerName + "\n";
+                t2.text += currentScore.playerName.Replace('+',' ') + "\n";
                 float time = (float)currentScore.score / 100;
                 t3.text += FormatTime(time)+ "\n";
                 if (count >= maxToDisplay) break;
