@@ -13,19 +13,12 @@ public class NetworkPlayer : Photon.MonoBehaviour {
     Text heading;
     public int score;
     public GameObject frontAxle, rearAxle;
-    //public GameObject leaderInput;
+    private NetworkManager manager;
 
     void Start()
     {
-        foreach (GameObject go in GameObject.FindGameObjectsWithTag("sceneUnload"))
-        {
-            go.SetActive(false);
-        }
-
-        foreach (GameObject go in GameObject.FindGameObjectWithTag("manager").GetComponent<NetworkManager>().load)
-        {
-            go.SetActive(true);
-        }
+        manager = GameObject.FindGameObjectWithTag("manager").GetComponent<NetworkManager>();
+        manager.setState(NetworkManager.state.game);
         heading = GameObject.FindGameObjectWithTag("heading").GetComponent<Text>();
         if (photonView.isMine) {
             myCamera.SetActive(true);
@@ -56,6 +49,7 @@ public class NetworkPlayer : Photon.MonoBehaviour {
     {
         if (PhotonNetwork.playerList.Length == 2)
         {
+            PhotonNetwork.room.open = false;
             photonView.RPC("startCountdown", PhotonTargets.All, PhotonNetwork.time);
         }
     }

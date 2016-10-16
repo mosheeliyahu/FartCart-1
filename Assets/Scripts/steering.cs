@@ -6,22 +6,26 @@ using System.Linq;
 public class steering : MonoBehaviour
 {
     public bool test;
-    public float turnSpeed, speed,fartReduce, blinkSpeed=2;
+    public float turnSpeed, speed, fartReduce, blinkSpeed = 2;
+    public float waitForOther = 15;//wait for other player to finish
     public int playerType;
     public AudioSource fartAudio, barpAudio, hiccupAudio;
     public Transform centerOfMass;
     public GameObject other, body;
     Quaternion lastGoodRotate;
     ProgressBar.ProgressRadialBehaviour bar;
-    Text lapText,timeText, heading;
+    Text lapText, timeText, heading;
     NetworkPlayer np;
     GameObject[] track;
+    public bool otherWin = false;
+    
 
     bool worngWay = false, respan = false, finish = false;
     int curPos = 16;
     int lap = 0;
     int score = 0;
-    float startTime ,alphaSpeed, worngWayTime ,respanTime;
+    float startTime, endTime, alphaSpeed, worngWayTime, respanTime;
+    int place;
 
     void Start()
     {
@@ -33,7 +37,7 @@ public class steering : MonoBehaviour
         timeText = GameObject.FindGameObjectWithTag("Time").GetComponent<Text>();
         np = GetComponent<NetworkPlayer>();
         track = GameObject.FindGameObjectsWithTag("track");
-        track = track.OrderBy(x => x.GetComponent<location>().trackPos).ToArray<GameObject>();  
+        track = track.OrderBy(x => x.GetComponent<location>().trackPos).ToArray<GameObject>();
     }
 
     public void addFood(int foodPick)
@@ -56,8 +60,8 @@ public class steering : MonoBehaviour
             }
             else
             {
-                if (alphaSpeed > 2 ) alphaSpeed = 2;
-                alphaSpeed -= (power/10);
+                if (alphaSpeed > 2) alphaSpeed = 2;
+                alphaSpeed -= (power / 10);
                 hiccupAudio.Play();
                 if (alphaSpeed < 1) alphaSpeed = 1;
             }
@@ -66,7 +70,7 @@ public class steering : MonoBehaviour
 
     public void location(int trackPos)
     {
-        Debug.Log("enter:" + trackPos);
+        //Debug.Log("enter:" + trackPos);
         if (trackPos == 1 && curPos == 16)
         {
             lap++;
@@ -82,7 +86,7 @@ public class steering : MonoBehaviour
                 curPos = trackPos;
                 worngWayOff();
             }
-            else if (!worngWay && lap>0)
+            else if (!worngWay && lap > 0)
             {
                 worngWayOn();
             }
@@ -90,14 +94,15 @@ public class steering : MonoBehaviour
         if (lap == 4)
         {
             lap = -1;
+            endTime = Time.time;
             finish = true;
         }
     }
 
     public void exitLocation(int trackPos)
     {
-        Debug.Log("exit:" + trackPos);
-        if ( trackPos== curPos)
+        //Debug.Log("exit:" + trackPos);
+        if (trackPos == curPos)
         {
             worngWayOn();
         }
@@ -116,7 +121,6 @@ public class steering : MonoBehaviour
                 break;
             case 3:
                 lapText.text = "LAST LAP";
-                //lapText.color= new Color("#55555");
                 break;
             case 4:
                 lapText.text = "FINISH!";
@@ -135,17 +139,19 @@ public class steering : MonoBehaviour
             Color temp = heading.color;
             temp.a = Mathf.Round(Mathf.PingPong(Time.time * blinkSpeed, 1.0f));
             heading.color = temp;
+            if (other == null || other.GetComponent<steering>().finish || Time.time-endTime> waitForOther)
+            {
+                if(Time.time - endTime > 3) endGame();
+            }
+            
         }
-        if(speed > 0 || respan)
+        if (speed > 0 || respan)
         {
             float steer;
-            #if UNITY_IOS || UNITY_ANDROID || UNITY_WP8 || UNITY_IPHONE
-                    steer = Input.acceleration.x;
-            #else
-                        var steer= Input.GetAxis("Horizontal"); 
-            #endif
-              if (test) steer = Input.GetAxis("Horizontal");
-             transform.Rotate(new Vector3(0, steer * turnSpeed * Time.fixedDeltaTime, 0));
+            steer = Input.acceleration.x;
+
+            if (test) steer = Input.GetAxis("Horizontal");
+            transform.Rotate(new Vector3(0, steer * turnSpeed * Time.fixedDeltaTime, 0));
         }
         if (!respan)
         {
@@ -160,12 +166,12 @@ public class steering : MonoBehaviour
             float diff = Time.time - respanTime;
             if (diff > 1.5f)
             {
-                respan=false;
+                respan = false;
                 body.SetActive(true);
             }
             else
             {
-                body.SetActive(Mathf.RoundToInt(Mathf.PingPong(Time.time * blinkSpeed*2, 1.0f))>0?true:false);
+                body.SetActive(Mathf.RoundToInt(Mathf.PingPong(Time.time * blinkSpeed * 2, 1.0f)) > 0 ? true : false);
             }
         }
         if (lap > 0) timeText.text = FormatTime(Time.time - startTime);
@@ -173,7 +179,8 @@ public class steering : MonoBehaviour
         if (worngWay)
         {
             float diff = Time.time - worngWayTime;
-            if (diff > 3) {
+            if (diff > 3)
+            {
                 // worngWayOff(); not working on time.. why??
                 worngWayOff();
 
@@ -185,16 +192,16 @@ public class steering : MonoBehaviour
             else
             {
                 Color temp = heading.color;
-                temp.a= Mathf.Round(Mathf.PingPong(Time.time * blinkSpeed, 1.0f));
+                temp.a = Mathf.Round(Mathf.PingPong(Time.time * blinkSpeed, 1.0f));
                 heading.color = temp;
             }
         }
-        if(!finish) updateRank();
+        if (!finish) updateRank();
     }
 
     string FormatTime(float time)
     {
-        int  minutes = (int)Mathf.Floor(time / 60.0f);
+        int minutes = (int)Mathf.Floor(time / 60.0f);
         int seconds = (int)Mathf.Floor(time - minutes * 60.0f);
         float milliseconds = time - Mathf.Floor(time);
         milliseconds = Mathf.Floor(milliseconds * 100.0f);
@@ -211,7 +218,6 @@ public class steering : MonoBehaviour
 
     }
 
-
     void worngWayOn()
     {
         worngWay = true;
@@ -225,29 +231,48 @@ public class steering : MonoBehaviour
         Color temp = heading.color;
         temp.a = 1;
         heading.color = temp;
-        
+
     }
 
     void updateRank()
     {
         score = 100000 * lap + 1000 * curPos - distScore();
         np.score = score;
-        if (other != null && !worngWay)
+        if (!worngWay)
         {
-            //Debug.Log("this: " + score + " other:" + other.GetComponent<NetworkPlayer>().score);
-            if (score > other.GetComponent<NetworkPlayer>().score)
-            {
-                heading.text = "1st";
-            }
-            else
-            {
-                heading.text = "2nd";
-            }
+            if (!otherWin && other != null )
+                setPlace(score > other.GetComponent<NetworkPlayer>().score);
+            else if(lap > 0)
+                setPlace(!otherWin);
         }
-
     }
-    int distScore() { 
+
+    int distScore()
+    {
         return Mathf.RoundToInt(Mathf.Abs(Vector3.Distance(transform.position, track[curPos % track.Length].transform.position)));
     }
+
+    void setPlace(bool first)
+    {
+        if (first)
+        {
+            heading.text = "1st";
+            place = 1;
+        }
+        else
+        {
+            heading.text = "2nd";
+            place = 2;
+        }
+    }
+
+    void endGame()
+    {
+        if (other != null) other.GetComponent<steering>().otherWin = true;
+        NetworkManager manager = GameObject.FindGameObjectWithTag("manager").GetComponent<NetworkManager>();
+        manager.setState(NetworkManager.state.endGame,place,endTime-startTime);
+        
+    }
+
 }
 

@@ -10,12 +10,13 @@ TagManager:
   - Time
   - Lap
   - track
-  - leaderboardFill
-  - sceneLoad
-  - sceneUnload
+  - leaderboardName
+  - inGameComponnents
   - manager
-  - inputPart
-  - inputText
+  - 2ndCamera
+  - leaderboardPopup
+  - loadingCanvas
+  - food
   layers:
   - Default
   - TransparentFX
